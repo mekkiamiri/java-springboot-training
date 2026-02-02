@@ -33,3 +33,25 @@ public class LambdaLab {
         });
     }
 }
+```
+---
+
+## Module 2: The Stream API (Mastering Data Pipelines)
+**Goal:** Transition from "How to do it" (Imperative) to "What to do" (Declarative).
+
+In Modern Java, we don't use `for` loops to filter or transform data. We use **Streams**.
+
+### 2.1 Intermediate vs. Terminal Operations
+* **Intermediate:** (Lazy) Transforms the stream. Examples: `.filter()`, `.map()`, `.sorted()`.
+* **Terminal:** (Eager) Closes the stream and returns a result. Examples: `.collect()`, `.forEach()`, `.reduce()`.
+
+### 2.2 Advanced: `flatMap` vs `map`
+Use `map` for 1-to-1 transformations. Use `flatMap` for 1-to-many (flattening collections).
+
+```java
+// Challenge: Get all unique tags from a list of blog posts
+List<String> allTags = posts.stream()
+    .flatMap(post -> post.getTags().stream()) // Flattens List<String> to Stream<String>
+    .distinct()
+    .collect(Collectors.toList());
+```
