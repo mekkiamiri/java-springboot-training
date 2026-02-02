@@ -2,26 +2,23 @@ FROM jupyter/base-notebook:latest
 
 USER root
 
-# 1. Install Java 21
+# 1. Install OpenJDK 21 (Essential for Module 4 Virtual Threads)
 RUN apt-get update && \
-    apt-get install -y openjdk-21-jdk wget unzip && \
+    apt-get install -y openjdk-21-jdk wget && \
     apt-get clean
 
-# 2. Download IJava
-RUN wget https://github.com/SpencerPark/IJava/releases/download/v1.3.0/ijava-1.3.0.zip && \
-    unzip ijava-1.3.0.zip
+# 2. Download and Install Rapaio Jupyter Kernel (v3.0.1)
+# We use the -auto flag to handle the installation without user input
+RUN wget https://github.com/padreati/rapaio-jupyter-kernel/releases/download/v3.0.1/rapaio-jupyter-kernel-3.0.1.jar && \
+    java -jar rapaio-jupyter-kernel-3.0.1.jar -i -auto && \
+    rm rapaio-jupyter-kernel-3.0.1.jar
 
-# 3. Install Kernel directly into the Conda environment Binder uses
-# This is the "magic" line that fixes the missing kernel
-RUN python3 install.py --sys-prefix --prefix=/srv/conda/envs/notebook
-
-# 4. Cleanup
-RUN rm ijava-1.3.0.zip install.py
-
-# 5. Fix permissions for the Binder user
-RUN chown -R ${NB_USER}:${NB_GROUP} /srv/conda/envs/notebook/share/jupyter/kernels/java
-RUN chmod -R 755 /srv/conda/envs/notebook/share/jupyter/kernels/java
+# 3. Fix Permissions (Crucial for Binder)
+# This ensures the 'jovyan' user (Binder's default) can execute the Java kernel
+RUN chown -R ${NB_USER} /home/jovyan && \
+    chmod -R 755 /usr/local/share/jupyter/kernels/java
 
 USER ${NB_USER}
-WORKDIR ${HOME}
+
+# Copy repository files
 COPY . ${HOME}
