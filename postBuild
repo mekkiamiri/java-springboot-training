@@ -1,0 +1,3 @@
+#!/bin/bash
+# Re-register the kernel just in case
+jupyter kernelspec list
